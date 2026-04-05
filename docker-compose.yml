@@ -1,0 +1,14 @@
+services:
+  jira-telegram:
+    build: .
+    container_name: jira-telegram
+    restart: always
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - USERS_FILE=/app/users.json
+      - PORT=8080
+    ports:
+      - "50080:8080"
+    volumes:
+      - ./users.json:/app/users.json:ro
+
