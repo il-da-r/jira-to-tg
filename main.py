@@ -8,6 +8,15 @@ app = Flask(__name__)
 BOT_TOKEN = os.getenv("BOT_TOKEN", "")
 TELEGRAM_URL = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 USERS_FILE = os.getenv("USERS_FILE", "users.json")
+TELEGRAM_PROXY_URL = os.getenv("TELEGRAM_PROXY_URL", "").strip()
+TELEGRAM_PROXY_HTTPS_URL = os.getenv("TELEGRAM_PROXY_HTTPS_URL", "").strip()
+
+TELEGRAM_PROXIES = None
+if TELEGRAM_PROXY_URL:
+    TELEGRAM_PROXIES = {
+        "http": TELEGRAM_PROXY_URL,
+        "https": TELEGRAM_PROXY_HTTPS_URL or TELEGRAM_PROXY_URL,
+    }
 
 # Загружаем соответствие логинов Jira ↔ chat_id Telegram
 try:
@@ -24,7 +33,8 @@ def send_telegram(chat_id: int, text: str):
         requests.post(
             TELEGRAM_URL,
             json={"chat_id": chat_id, "text": text, "parse_mode": "HTML"},
-            timeout=5
+            timeout=5,
+            proxies=TELEGRAM_PROXIES,
         )
     except Exception as e:
         print(f"❌ Ошибка отправки Telegram: {e}")
